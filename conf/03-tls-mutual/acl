@@ -1,0 +1,20 @@
+# Scenario 03 -- same shape as 02, but %u instead of %c.
+# With use_identity_as_username, %u is the certificate CN: the CA vouches for it.
+# In 02, %c was the client-id, which any client can simply claim.
+
+# Each device may only touch the camera subtree named after its certificate CN.
+# frontdoor.crt (CN=frontdoor) -> cam/frontdoor/#
+# client.crt    (CN=client)    -> cam/client/#   (attacker: valid cert, empty subtree)
+pattern readwrite cam/%u/#
+
+# Monitoring (also used by the healthcheck): health topic and broker stats only.
+user svc_health
+topic read health/#
+topic read $SYS/#
+
+# Home Assistant: own namespace + bulb + camera events, never config.
+user svc_ha
+topic readwrite homeassistant/#
+topic readwrite home/lab/#
+topic read cam/+/events
+

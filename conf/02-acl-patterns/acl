@@ -1,0 +1,16 @@
+# Scenario 02 i- least privilege + identity-scoped patterns.
+
+# Any client may only touch the camera subtree matching its own client-id.
+# camera connects with client-id "frontdoor" -> cam/frontdoor/#
+pattern readwrite cam/%c/#
+
+# Monitoring service: health topic and broker stats only. No camera access.
+user svc_health
+topic read health/#
+topic read $SYS/#
+
+# Home Assistant: own namespace. Reads only camera EVENTS, never config.
+user svc_ha
+topic readwrite homeassistant/#
+topic readwrite home/lab/#
+topic read cam/+/events

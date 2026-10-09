@@ -1,0 +1,20 @@
+ARG PYTHON_TAG=3.12-slim
+FROM python:${PYTHON_TAG}
+
+# APP_UID / APP_GID are passed from .env via the compose build.args.
+ARG APP_UID=10001
+ARG APP_GID=10001
+
+# python:slim runs as root: here we create the unprivileged user.
+RUN groupadd -g "${APP_GID}" app \
+ && useradd -u "${APP_UID}" -g "${APP_GID}" -M -s /usr/sbin/nologin app \
+ && pip install --no-cache-dir paho-mqtt
+
+WORKDIR /app
+# The fake publisher (simulates an IP camera).
+COPY publisher.py /app/publisher.py
+
+# From here on the container no longer runs as root.
+USER ${APP_UID}:${APP_GID}
+ENTRYPOINT ["python3", "-u", "/app/publisher.py"]
+

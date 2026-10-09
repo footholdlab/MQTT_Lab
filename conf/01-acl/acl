@@ -1,0 +1,16 @@
+# Camera service: owns its own subtree (correct).
+user svc_cam
+topic readwrite cam/frontdoor/#
+
+# Monitoring service meant to read health only
+# cam/frontdoor/config to any valid monitoring credential.
+user svc_health
+topic read cam/#
+topic read $SYS/#
+
+# Home Assistant user
+# Also over-broad on cam (read cam/#) in this scenario.
+user svc_ha
+topic readwrite homeassistant/#
+topic readwrite home/lab/#
+topic read cam/#

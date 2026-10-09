@@ -1,0 +1,31 @@
+# Scenario 03 overlay: publish 8883, healthcheck over mTLS, cam-api over mTLS.
+# Usage: docker compose -f compose.yml -f compose.03.yml up -d
+services:
+  mosquitto:
+    ports:                               # appended to the base list (1883 stays published, but closed)
+      - "${HOST_BIND_IP}:${MQTTS_PORT}:${MQTTS_PORT}"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          mosquitto_sub -h 127.0.0.1 -p ${MQTTS_PORT}
+          --cafile /mosquitto/config/certs/ca.crt
+          --cert /mosquitto/config/certs/svc_health.crt
+          --key /mosquitto/config/certs/svc_health.key
+          -t '$$SYS/broker/uptime' -C 1 -W ${HEALTH_TIMEOUT} -q 0
+
+  cam-api:
+    environment:
+      MQTT_PORT: ${MQTTS_PORT}
+      MQTT_USERNAME: ""                  # identity comes from the cert now
+      MQTT_PASSWORD: ""
+      MQTT_TLS: "1"
+      MQTT_CAFILE: /certs/ca.crt
+      MQTT_CERTFILE: /certs/frontdoor.crt
+      MQTT_KEYFILE: /certs/frontdoor.key
+    volumes:
+      - type: bind
+        source: /srv/lab-mosquitto/pki/clients/frontdoor
+        target: /certs
+        read_only: true
+
