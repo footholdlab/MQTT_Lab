@@ -39,7 +39,7 @@ Two VMs on VMware Workstation, connected through a host-only network (`192.168.1
 | VM | OS | Resources | Network | Role |
 |---|---|---|---|---|
 | `mq-lab` | Debian 13 (minimal, no GUI) | 2 vCPU, 4 GB RAM, 20 GB disk | `ens37` host-only, static `192.168.183.10`<br>`ens33` NAT, only for pulls, disconnected afterwards | Docker host |
-| Client | Parrot OS | — | host-only, `192.168.183.101` | Attacker / MQTT client |
+| Client | Kali or Parrot | — | host-only, `192.168.183.101` | Attacker / MQTT client |
 
 The attacker runs on a separate VM on purpose: connections from the Docker host itself would appear in the broker logs as the bridge gateway, while an external client is logged with its real IP.
 
@@ -52,7 +52,7 @@ Three containers on a dedicated bridge network:
 | Service | Image | Internal IP | Published on `192.168.183.10` | Role |
 |---|---|---|---|---|
 | `mosquitto` | `eclipse-mosquitto:2` | `172.18.0.2` | `1883` (all scenarios), `8883` (scenario 03) | The broker under test |
-| `cam-api` | built from [`cam-api/`](cam-api/) | `172.18.0.3` | — (internal only) | Fake IP camera that publishes telemetry and a retained config with an embedded RTSP credential |
+| `cam-api` | built from [`cam-api/`](cam-api/) | `172.18.0.3` | — (internal only) | Fake IP camera that publishes telemetry built with python |
 | `homeassistant` | `ghcr.io/home-assistant/home-assistant:stable` | `172.18.0.4` | `8123` | Broker consumer, kept for future tests |
 
 - **Network:** bridge `mqlab-net` (interface `br-mqlab`, subnet `172.18.0.0/16`). Containers reach each other by service name (`mosquitto`).
@@ -85,9 +85,6 @@ sudo chown -R 1883:1883 /srv/lab-mosquitto/data /srv/lab-mosquitto/log
 
 docker run --rm eclipse-mosquitto:2 id   # must return uid=1883; otherwise fix MOSQ_UID/MOSQ_GID in .env
 ```
-
-Clone to `/srv/docker-conf/lab-mosquitto`: the PKI script for scenario 03 writes the broker certificates to that path.
-
 ---
 
 ## Mosquitto lab configuration
@@ -147,8 +144,6 @@ cp .env-02-03 .env
 ln -sfn 03-tls-mutual conf/active_conf
 docker compose -f compose.yml -f compose-03.yml up -d
 ```
-
-To go back from 03 to any earlier scenario, run `docker compose -f compose.yml -f compose-03.yml down` and start again **without** the overlay.
 
 Starting from scratch (scenario 00) is the same cycle with `.env-00-01` and `ln -sfn 00-basic conf/active_conf`.
 
