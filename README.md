@@ -34,6 +34,9 @@ The lab is designed to grow. Home Assistant is already deployed as the "victim" 
 
 ### Virtual machines
 
+[!NOTE] The networks shared are not fixed in the configuration. You can manage this in two ways, fixing it in your Hypervisor and docker compose, or checking your settings and ammending the configuration files.
+
+
 Two VMs on VMware Workstation, connected through a host-only network (`192.168.183.0/24`).
 
 | VM | OS | Resources | Network | Role |
