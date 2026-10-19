@@ -4,7 +4,7 @@
 ![Mosquitto](https://img.shields.io/badge/Eclipse_Mosquitto-2.x-3C5280?logo=eclipsemosquitto&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> **Companion article:** [MQTT broker access control: how far an attacker gets at each step](https://footholdlab.com)
+> **Companion article:** [MQTT broker access control](https://footholdlab.com/en/posts/lab-01-mqtt/)
 
 > [!WARNING]
 > Lab use only. Every credential in this repository is a fake lab value and is published on purpose. Change them if you deploy anything beyond an isolated lab, and never point this broker at a real home-automation installation.
